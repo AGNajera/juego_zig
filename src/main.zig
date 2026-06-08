@@ -123,6 +123,32 @@ const Invader = struct {
     height: f32,
     speed: f32,
     alive: bool,
+
+    pub fn init(position_x: f32, position_y: f32, width: f32, height: f32) @This() {
+        return .{
+            .position_x = position_x,
+            .position_y = position_y,
+            .width = width,
+            .height = height,
+            .speed = 6.7,
+            .alive = true,
+        };
+    }
+
+    pub fn draw(self: @This()) void {
+        if (self.alive) rl.drawRectangle(
+            @intFromFloat(self.position_x),
+            @intFromFloat(self.position_y),
+            @intFromFloat(self.width),
+            @intFromFloat(self.height),
+            rl.Color.green,
+        );
+    }
+
+    pub fn update(self: *@This(), dx: f32, dy: f32) void {
+        self.position_x += dx;
+        self.position_y += dy;
+    }
 };
 
 pub fn main() void {
@@ -131,7 +157,19 @@ pub fn main() void {
     const max_bullets = 10;
     const bullet_width = 4.0;
     const bullet_height = 10.0;
-
+    const invader_rows = 5;
+    const invader_cols = 11;
+    const invader_width = 40.0;
+    const invader_height = 30.0;
+    const invader_start_x = 100.0;
+    const invader_start_y = 50.0;
+    const invader_spacing_x = 60.0;
+    const invader_spacing_y = 40.0;
+    const invader_speed = 11.0;
+    const invader_move_delay = 10;
+    var invader_direction: f32 = 1.0;
+    const invader_drop_distance = 35.0;
+    var move_timer: f32 = 0;
     const player_width = 50.0;
     const player_height = 30.0;
 
@@ -146,6 +184,15 @@ pub fn main() void {
 
     for (&bullets) |*bullet| {
         bullet.* = Bullet.init(0, 0, bullet_width, bullet_height);
+    }
+
+    var invaders: [invader_rows][invader_cols]Invader = undefined;
+    for (&invaders, 0..) |*row, i| {
+        for (row, 0..) |*invader, j| {
+            const x = invader_start_x + @as(f32, @floatFromInt(j)) * invader_spacing_x;
+            const y = invader_start_y + @as(f32, @floatFromInt(i)) * invader_spacing_y;
+            invader.* = Invader.init(x, y, invader_width, invader_height);
+        }
     }
 
     rl.initWindow(screen_width, screen_height, "Primera vez Raylib y Zig");
@@ -176,9 +223,49 @@ pub fn main() void {
             bullet.update();
         }
 
+        // Muchos loops e ifs, pero bueno que le voy a hacer, este proyecto me está volviendo
+        // a que me vaya a web, pero volver a escirbir HTML Y CSS zzz... :/
+        move_timer += 1;
+        if (move_timer >= invader_move_delay) {
+            move_timer = 0;
+            var hit_edge = false;
+            for (&invaders) |*row| {
+                for (row) |*invader| {
+                    if (invader.alive) {
+                        const next_x = invader.position_x + (invader_speed * invader_direction);
+                        if (next_x < 0 or next_x + invader.width > @as(f32, @floatFromInt(screen_width))) {
+                            hit_edge = true;
+                            break;
+                        }
+                    }
+                }
+                if (hit_edge) break;
+            }
+            if (hit_edge) {
+                invader_direction *= -1.0;
+                for (&invaders) |*row| {
+                    for (row) |*invader| {
+                        invader.update(0, invader_drop_distance);
+                    }
+                }
+            } else {
+                for (&invaders) |*row| {
+                    for (row) |*invader| {
+                        invader.update(invader_speed * invader_direction, 0);
+                    }
+                }
+            }
+        }
+
         player.draw();
         for (&bullets) |*bullet| {
             bullet.draw();
+        }
+
+        for (&invaders) |*row| {
+            for (row) |*invader| {
+                invader.draw();
+            }
         }
         rl.drawText("Raylib y Zig", 350, 280, 32, rl.Color.purple);
     }
