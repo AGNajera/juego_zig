@@ -3,32 +3,32 @@ const Rectangle = struct {
     y: f32,
     x: f32,
     width: f32,
-    heigth: f32,
+    height: f32,
     pub fn intersects(self: Rectangle, other: Rectangle) bool {
         return self.x < other.x + self.width and
             self.x + self.width > other.x and
             self.y < other.x + self.width and
-            self.y + self.heigth > other.y;
+            self.y + self.height > other.y;
     }
 };
 
 const Game_config = struct {
     sreen_width: i32,
-    screen_heigth: i32,
+    screen_height: i32,
     player_width: f32,
-    player_heigth: f32,
+    player_height: f32,
     player_start_y: f32,
     bullet_width: f32,
-    bullet_heigth: f32,
+    bullet_height: f32,
     shield_start_x: f32,
     shield_y: f32,
     shield_width: f32,
-    shield_heigth: f32,
+    shield_height: f32,
     shield_spacing: f32,
     invader_start_x: f32,
     invader_start_y: f32,
     invader_width: f32,
-    invader_heigth: f32,
+    invader_height: f32,
     invader_spacing_x: f32,
     invader_spacing_y: f32,
 };
@@ -37,15 +37,15 @@ const Player = struct {
     position_x: f32,
     position_y: f32,
     width: f32,
-    heigth: f32,
+    height: f32,
     speed: f32,
 
-    pub fn init(position_x: f32, position_y: f32, width: f32, heigth: f32) @This() {
+    pub fn init(position_x: f32, position_y: f32, width: f32, height: f32) @This() {
         return .{
             .position_x = position_x,
             .position_y = position_y,
             .width = width,
-            .heigth = heigth,
+            .height = height,
             .speed = 6.7,
         };
     }
@@ -64,7 +64,7 @@ const Player = struct {
             .x = self.position_x,
             .y = self.position_y,
             .width = self.width,
-            .heigth = self.heigth,
+            .height = self.height,
         };
     }
 
@@ -73,7 +73,7 @@ const Player = struct {
             @intFromFloat(self.position_x),
             @intFromFloat(self.position_y),
             @intFromFloat(self.width),
-            @intFromFloat(self.heigth),
+            @intFromFloat(self.height),
             rl.Color.white,
         );
     }
@@ -83,16 +83,16 @@ const Bullet = struct {
     position_x: f32,
     position_y: f32,
     width: f32,
-    heigth: f32,
+    height: f32,
     speed: f32,
     active: bool,
 
-    pub fn init(position_x: f32, position_y: f32, width: f32, heigth: f32) @This() {
+    pub fn init(position_x: f32, position_y: f32, width: f32, height: f32) @This() {
         return .{
             .position_x = position_x,
             .position_y = position_y,
             .width = width,
-            .heigth = heigth,
+            .height = height,
             .speed = 12.0,
             .active = false,
         };
@@ -110,36 +110,45 @@ const Bullet = struct {
             @intFromFloat(self.position_x),
             @intFromFloat(self.position_y),
             @intFromFloat(self.width),
-            @intFromFloat(self.heigth),
+            @intFromFloat(self.height),
             rl.Color.white,
         );
     }
 };
 
+const Invader = struct {
+    position_x: f32,
+    position_y: f32,
+    width: f32,
+    height: f32,
+    speed: f32,
+    alive: bool,
+};
+
 pub fn main() void {
     const screen_width = 900;
-    const screen_heigth = 600;
+    const screen_height = 600;
     const max_bullets = 10;
     const bullet_width = 4.0;
-    const bullet_heigth = 10.0;
+    const bullet_height = 10.0;
 
     const player_width = 50.0;
-    const player_heigth = 30.0;
+    const player_height = 30.0;
 
     var player: Player = Player.init(
         @as(f32, @floatFromInt(screen_width)) / 2 - player_width / 2,
-        @as(f32, @floatFromInt(screen_heigth)) - 60.0,
+        @as(f32, @floatFromInt(screen_height)) - 60.0,
         player_width,
-        player_heigth,
+        player_height,
     );
 
     var bullets: [max_bullets]Bullet = undefined;
 
     for (&bullets) |*bullet| {
-        bullet.* = Bullet.init(0, 0, bullet_width, bullet_heigth);
+        bullet.* = Bullet.init(0, 0, bullet_width, bullet_height);
     }
 
-    rl.initWindow(screen_width, screen_heigth, "Primera vez Raylib y Zig");
+    rl.initWindow(screen_width, screen_height, "Primera vez Raylib y Zig");
     defer rl.closeWindow();
 
     rl.setTargetFPS(60);
