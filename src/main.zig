@@ -111,8 +111,17 @@ const Bullet = struct {
             @intFromFloat(self.position_y),
             @intFromFloat(self.width),
             @intFromFloat(self.height),
-            rl.Color.white,
+            rl.Color.green,
         );
+    }
+
+    pub fn get_rectangle(self: @This()) Rectangle {
+        return .{
+            .x = self.position_x,
+            .y = self.position_y,
+            .width = self.width,
+            .height = self.height,
+        };
     }
 };
 
@@ -149,6 +158,63 @@ const Invader = struct {
         self.position_x += dx;
         self.position_y += dy;
     }
+
+    pub fn get_rectangle(self: @This()) Rectangle {
+        return .{
+            .x = self.position_x,
+            .y = self.position_y,
+            .width = self.width,
+            .height = self.height,
+        };
+    }
+};
+
+const EnemyBullet = struct {
+    position_x: f32,
+    position_y: f32,
+    width: f32,
+    height: f32,
+    speed: f32,
+    active: bool,
+
+    pub fn init(position_x: f32, position_y: f32, width: f32, height: f32) @This() {
+        return .{
+            .position_x = position_x,
+            .position_y = position_y,
+            .width = width,
+            .height = height,
+            .speed = 5.5,
+            .active = false,
+        };
+    }
+
+    pub fn get_rectangle(self: @This()) Rectangle {
+        return .{
+            .x = self.position_x,
+            .y = self.position_y,
+            .width = self.width,
+            .height = self.height,
+        };
+    }
+
+    pub fn update(self: *@This(), screen_height: i32) void {
+        if (self.active) {
+            self.position_y += self.speed;
+            if (self.position_y > @as(f32, @floatFromInt(screen_height))) {
+                self.active = false;
+            }
+        }
+    }
+
+    pub fn draw(self: @This()) void {
+        if (self.active) rl.drawRectangle(
+            @intFromFloat(self.position_x),
+            @intFromFloat(self.position_y),
+            @intFromFloat(self.width),
+            @intFromFloat(self.height),
+            rl.Color.red,
+        );
+    }
 };
 
 pub fn main() void {
@@ -167,9 +233,16 @@ pub fn main() void {
     const invader_spacing_y = 40.0;
     const invader_speed = 11.0;
     const invader_move_delay = 10;
-    var invader_direction: f32 = 1.0;
     const invader_drop_distance = 35.0;
+    const max_enemy_bullets = 20;
+    const enemy_shoot_delay = 55;
+    const enemy_shoot_chance = 7;
+    // aplico tipo a las variables 'var' ya que son var y así sé de que tipo son para modificarlas :D
+    // aunque tambien se puede aplicar inferencia (creo), pero bueno...
+    var invader_direction: f32 = 1.0;
     var move_timer: f32 = 0;
+    var enemy_shoot_timer: i32 = 0;
+    var score: i32 = 0;
     const player_width = 50.0;
     const player_height = 30.0;
 
@@ -181,9 +254,13 @@ pub fn main() void {
     );
 
     var bullets: [max_bullets]Bullet = undefined;
-
     for (&bullets) |*bullet| {
         bullet.* = Bullet.init(0, 0, bullet_width, bullet_height);
+    }
+
+    var enemy_bullets: [max_enemy_bullets]EnemyBullet = undefined;
+    for (&enemy_bullets) |*bullet| {
+        bullet.* = EnemyBullet.init(0, 0, bullet_width, bullet_height);
     }
 
     var invaders: [invader_rows][invader_cols]Invader = undefined;
@@ -221,6 +298,46 @@ pub fn main() void {
         // No se sí se pueda hace de otra manera (imagino que sí), pero bueno, soy nuevo así que...
         for (&bullets) |*bullet| {
             bullet.update();
+        }
+
+        for (&bullets) |*bullet| {
+            if (bullet.active) {
+                for (&invaders) |*row| {
+                    for (row) |*invader| {
+                        if (invader.alive) {
+                            if (bullet.get_rectangle().intersects(invader.get_rectangle())) {
+                                bullet.active = false;
+                                invader.alive = false;
+                                score += 10;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (&enemy_bullets) |*bullet| {
+            bullet.update(screen_height);
+        }
+        enemy_shoot_timer += 1;
+        if (enemy_shoot_timer >= enemy_shoot_delay) {
+            enemy_shoot_timer = 0;
+            for (&invaders) |*row| {
+                for (row) |*invader| {
+                    if (invader.alive and rl.getRandomValue(0, 100) < enemy_shoot_chance) {
+                        for (&enemy_bullets) |*bullet| {
+                            if (!bullet.active) {
+                                bullet.position_x = invader.position_x + invader.width / 2 - bullet.width / 2;
+                                bullet.position_y = invader.position_y + invader.height;
+                                bullet.active = false;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
 
         // Muchos loops e ifs, pero bueno que le voy a hacer, este proyecto me está volviendo
@@ -267,6 +384,11 @@ pub fn main() void {
                 invader.draw();
             }
         }
-        rl.drawText("Raylib y Zig", 350, 280, 32, rl.Color.purple);
+        for (&enemy_bullets) |*bullet| {
+            bullet.draw();
+        }
+        const score_text = rl.textFormat("Score: %d", .{score});
+        rl.drawText(score_text, 20, screen_height - 20, 24, rl.Color.white);
+        rl.drawText("Raylib y Zig - SPACE dispara, ESC para salir", 20, 20, 28, rl.Color.purple);
     }
 }
