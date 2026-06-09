@@ -243,6 +243,7 @@ pub fn main() void {
     var move_timer: f32 = 0;
     var enemy_shoot_timer: i32 = 0;
     var score: i32 = 0;
+    var game_over: bool = false;
     const player_width = 50.0;
     const player_height = 30.0;
 
@@ -281,6 +282,16 @@ pub fn main() void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
+        if (game_over) {
+            rl.drawText("GAME OVER", 300, 350, 36, rl.Color.red);
+            const score_text = rl.textFormat("Final score %d", .{score});
+            rl.drawText(score_text, 320, 410, 32, rl.Color.white);
+            rl.drawText("ENTER para jugar de nuevo, ESC para salir", 380, 410, 28, rl.Color.green);
+
+            if (rl.isKeyPressed(rl.KeyboardKey.enter)) game_over = false; // resetear el juego será después, ya es noche.
+            continue;
+        }
+
         rl.clearBackground(rl.Color.black);
         player.update();
         if (rl.isKeyPressed(rl.KeyboardKey.space)) {
@@ -314,6 +325,14 @@ pub fn main() void {
                         }
                     }
                 }
+            }
+        }
+
+        for (&enemy_bullets) |*bullet| {
+            bullet.update(screen_height);
+            if (bullet.active) {
+                bullet.active = false;
+                game_over = true;
             }
         }
 
