@@ -1,5 +1,5 @@
 0
-12057 592095 1780948488693928956 0f3eabbd2a56b8566edf13cbb81fcf76 0 src/main.zig
+12794 592095 1780972217587343008 6b7875723320f6bcdd7acb0c9ada166c 0 src/main.zig
 571 592096 1780871998777917567 4886c110641a6a8deabc8201cbace641 0 src/root.zig
 184410 592356 1780872039726038253 09410146f3a2dffe9acdec237da67ac3 0 zig-pkg/raylib_zig-6.0.0-KE8REDJ4BQBu7lKwYNt6R4j5ywPeS37zqW6zrtjCcRwH/lib/raylib.zig
 21780 516872 1776106215000000000 8372996c7671543c238bcba94bfb7378 1 ubsan_rt.zig
@@ -821,7 +821,7 @@
 419 516691 1776106215000000000 ed7dfc04a5d0c4f0853edb5414ce981e 1 std/os/linux/bpf/btf_ext.zig
 24525 516692 1776106215000000000 52c7fac6ad48da05270f91f073a4af79 1 std/os/linux/bpf/helpers.zig
 2972 516439 1776106215000000000 8c37c40098d399e3b36a078ce1d4e3a1 1 std/crypto/codecs/asn1/der/ArrayListReverse.zig
-12057 592095 1780948488693928956 0f3eabbd2a56b8566edf13cbb81fcf76 0 /Users/angel/Personal/Zig/zig_invaders/src/main.zig
+12794 592095 1780972217587343008 6b7875723320f6bcdd7acb0c9ada166c 0 /Users/angel/Personal/Zig/zig_invaders/src/main.zig
 184410 592356 1780872039726038253 09410146f3a2dffe9acdec237da67ac3 0 /Users/angel/Personal/Zig/zig_invaders/zig-pkg/raylib_zig-6.0.0-KE8REDJ4BQBu7lKwYNt6R4j5ywPeS37zqW6zrtjCcRwH/lib/raylib.zig
 49710 592354 1780872039725155107 6d3f0781400dc8bd9d56f75863d4309e 0 /Users/angel/Personal/Zig/zig_invaders/zig-pkg/raylib_zig-6.0.0-KE8REDJ4BQBu7lKwYNt6R4j5ywPeS37zqW6zrtjCcRwH/lib/raylib-ext.zig
 35674 592362 1780872039727564215 f0a6339cb07109132b564312afeff653 0 /Users/angel/Personal/Zig/zig_invaders/zig-pkg/raylib_zig-6.0.0-KE8REDJ4BQBu7lKwYNt6R4j5ywPeS37zqW6zrtjCcRwH/lib/rlgl.zig
